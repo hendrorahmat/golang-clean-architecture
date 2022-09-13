@@ -13,10 +13,9 @@ import (
 	"time"
 )
 
-type ConnectionPostgresDB struct {
-	DriverName string
-	Database   *gorm.DB
-	SqlDb      *sql.DB
+type connectionPostgresDB struct {
+	database *gorm.DB
+	sqlDb    *sql.DB
 }
 
 type IPostgresDB interface {
@@ -24,18 +23,13 @@ type IPostgresDB interface {
 	DB() *gorm.DB
 }
 
-func (p *ConnectionPostgresDB) SqlDB() *sql.DB {
-	return p.SqlDb
+func NewPostgresDB() *connectionPostgresDB {
+	return &connectionPostgresDB{}
 }
 
-func (p *ConnectionPostgresDB) DB() *gorm.DB {
-	return p.Database
-}
-
-func NewConnection(config config.PostgresDbConf, log *logrus.Logger) IPostgresDB {
-	loggrusLog := log
-	loggrusLog.Info("Connecting to database...")
-
+func (p *connectionPostgresDB) NewConnection(config config.DatabaseConfig, log *logrus.Logger) IPostgresDB {
+	logger := log
+	logger.Info(fmt.Sprintf("Creating Connection %s ...", config.ConnectionName))
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		config.Host,
@@ -87,8 +81,9 @@ func NewConnection(config config.PostgresDbConf, log *logrus.Logger) IPostgresDB
 		Logger: gormLog.Default.LogMode(gormLog.Warn),
 	})
 
+	logger.Info("Connecting to Postgres database...")
 	if err != nil {
-		loggrusLog.Fatalf("connect database err: %s", err)
+		logger.Fatalf("connect database err: %s", err)
 		panic("Failed to connect to database!")
 	}
 
@@ -99,13 +94,21 @@ func NewConnection(config config.PostgresDbConf, log *logrus.Logger) IPostgresDB
 	sqlDB.SetMaxOpenConns(config.MaxOpenConn)
 
 	if err != nil {
-		loggrusLog.Fatalf("database err: %s", err)
-		panic("Database Error!")
+		logger.Fatalf("database err: %s", err)
+		panic("database Error!")
 	}
-	loggrusLog.Info("Success Connect Database")
+	logger.Info(fmt.Sprintf("Database %s Connected Successfully!", config.Name))
 	sqlDB.Ping()
-	return &ConnectionPostgresDB{
-		Database: db,
-		SqlDb:    sqlDB,
-	}
+	p.sqlDb = sqlDB
+	p.database = db
+
+	return p
+}
+
+func (p *connectionPostgresDB) SqlDB() *sql.DB {
+	return p.sqlDb
+}
+
+func (p *connectionPostgresDB) DB() *gorm.DB {
+	return p.database
 }

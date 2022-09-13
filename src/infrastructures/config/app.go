@@ -1,16 +1,18 @@
 package config
 
 import (
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
 	"github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type AppConf struct {
 	Environment             string
 	Name                    string
-	AppKey                  string
+	Key                     string
 	GracefulShutdownTimeout int
 }
 
@@ -42,65 +44,72 @@ type Config struct {
 	Redis    RedisConf
 	Http     HttpConf
 	Log      LogConf
-	Database DatabaseConfig
+	Database Databases
 }
 
-// Make builds a config value based on .env file.
+var appConfigOnce sync.Once
+var appConfig *Config
+
+// Make builds a appConfig value based on .env file.
 func Make() *Config {
-	gracefulShutdownTimeout, err := strconv.Atoi(os.Getenv("GRACEFUL_SHUTDOWN_TIMEOUT"))
-	app := AppConf{
-		Environment:             strings.ToLower(os.Getenv("APP_ENV")),
-		Name:                    os.Getenv("APP_NAME"),
-		AppKey:                  os.Getenv("APP_KEY"),
-		GracefulShutdownTimeout: gracefulShutdownTimeout,
-	}
+	appConfigOnce.Do(func() {
+		gracefulShutdownTimeout, err := strconv.Atoi(os.Getenv("GRACEFUL_SHUTDOWN_TIMEOUT"))
+		app := AppConf{
+			Environment:             strings.ToLower(os.Getenv("APP_ENV")),
+			Name:                    os.Getenv("APP_NAME"),
+			Key:                     os.Getenv("APP_KEY"),
+			GracefulShutdownTimeout: gracefulShutdownTimeout,
+		}
 
-	mongodb := MongoDbConf{
-		Dsn: os.Getenv("MONGO_DSN"),
-	}
+		mongodb := MongoDbConf{
+			Dsn: os.Getenv("MONGO_DSN"),
+		}
 
-	http := HttpConf{
-		Port:       os.Getenv("HTTP_PORT"),
-		XRequestID: os.Getenv("HTTP_REQUEST_ID"),
-	}
+		http := HttpConf{
+			Port:       os.Getenv("HTTP_PORT"),
+			XRequestID: os.Getenv("HTTP_REQUEST_ID"),
+		}
 
-	log := LogConf{
-		Name:   os.Getenv("LOG_NAME"),
-		Logger: logrus.New(),
-	}
+		log := LogConf{
+			Name:   os.Getenv("LOG_NAME"),
+			Logger: logrus.New(),
+		}
 
-	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
-	redis := RedisConf{
-		Address:  os.Getenv("REDIS_ADDRESS"),
-		Password: os.Getenv("REDIS_PASSWORD"),
-		Db:       db,
-	}
+		db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+		redis := RedisConf{
+			Address:  os.Getenv("REDIS_ADDRESS"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			Db:       db,
+		}
 
-	// set default env to local
-	if app.Environment == "" {
-		app.Environment = "local"
-	}
+		// set default env to local
+		if app.Environment == "" {
+			app.Environment = "local"
+		}
 
-	// set default port for HTTP
-	if http.Port == "" {
-		http.Port = "8080"
-	}
+		// set default port for HTTP
+		if http.Port == "" {
+			http.Port = string(constants.DefaultPort)
+		}
 
-	httpTimeout, err := strconv.Atoi(os.Getenv("HTTP_TIMEOUT"))
-	if err == nil {
-		http.Timeout = httpTimeout
-	}
+		httpTimeout, err := strconv.Atoi(os.Getenv("HTTP_TIMEOUT"))
+		if err == nil {
+			http.Timeout = httpTimeout
+		}
 
-	databaseConfig := MakeDatabaseConfig()
+		if os.Getenv("DB_DRIVER") == "" {
+			panic(constants.DbDriverNotFound)
+		}
 
-	config := Config{
-		App:      app,
-		MongoDb:  mongodb,
-		Http:     http,
-		Redis:    redis,
-		Log:      log,
-		Database: databaseConfig,
-	}
+		appConfig = &Config{
+			App:      app,
+			MongoDb:  mongodb,
+			Http:     http,
+			Redis:    redis,
+			Log:      log,
+			Database: DBConfig,
+		}
+	})
 
-	return &config
+	return appConfig
 }

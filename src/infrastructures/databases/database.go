@@ -1,41 +1,60 @@
 package databases
 
 import (
+	"database/sql"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases/mysql"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases/postgres"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"os"
+	"sync"
 )
 
-type database struct {
-	Mongo    interface{}
-	Postgres postgres.IPostgresDB
-	Mysql    mysql.IMysqlDB
-	Redis    interface{}
+type IDB interface {
+	SqlDB() *sql.DB
+	DB() *gorm.DB
 }
 
-func connectPostgres(pgConfig config.PostgresDbConf, log *logrus.Logger) postgres.IPostgresDB {
-	return postgres.NewConnection(pgConfig, log)
+type Connection map[string]IDB
+
+type Connections struct {
+	Connection
 }
 
-func MakeDatabase(dbConfig config.DatabaseConfig, log *logrus.Logger) *database {
-	driver := os.Getenv("DB_DRIVER")
-	connection := database{}
-	if driver == constants.DriverPostgres {
-		connection.Postgres = connectPostgres(dbConfig.PostgresConfig, log)
-	} else {
-		panic("Driver DB not found!.")
-	}
-	return &connection
-}
+var ListConnections *Connections
+var dbConnOnce sync.Once
 
-func (d *database) GetPostgresConnection() *gorm.DB {
-	return d.Postgres.DB()
-}
+func MakeDatabase(databases config.Databases, log *logrus.Logger) *Connections {
+	dbConnOnce.Do(func() {
+		listConnections := Connection{}
+		var dbConnection IDB
+		for name, databaseConf := range databases {
+			if databaseConf.SkipCreateConnection {
+				continue
+			}
 
-func (d *database) GetMysqlConnection() *gorm.DB {
-	return d.Mysql.DB()
+			databaseConf.ConnectionName = string(name)
+
+			switch databaseConf.Driver {
+			case constants.POSTGRES:
+				pgCon := postgres.NewPostgresDB()
+				dbConnection = pgCon.NewConnection(databaseConf, log)
+			case constants.MYSQL:
+				mysqlCon := mysql.NewMysqlDB()
+				dbConnection = mysqlCon.NewConnection(databaseConf, log)
+			}
+
+			listConnections[string(name)] = dbConnection
+		}
+
+		ListConnections = &Connections{
+			listConnections,
+		}
+	})
+
+	return ListConnections
+}
+func (c *Connections) GetConnection(connectionName string) *gorm.DB {
+	return c.Connection[connectionName].DB()
 }

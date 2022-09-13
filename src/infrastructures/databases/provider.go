@@ -7,7 +7,6 @@ import (
 	"github.com/google/wire"
 	"github.com/hendrorahmat/golang-clean-architecture/src/domains/repositories"
 	"github.com/hendrorahmat/golang-clean-architecture/src/domains/repositories/gorm_types"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
 	repositories2 "github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases/repositories"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -22,21 +21,12 @@ type Repository struct {
 	BaseRepository        gorm_types.Repository
 }
 
-var RepoGormDatabaseRepository *gormRepository
-var DatabaseConnection *database
-var DatabaseConfig config.DatabaseConfig
-
-type RepoGormType *gormRepository
-
 func ProvideDatabaseRepository(db *gorm.DB, logger *logrus.Logger, defaultJoins ...string) *gormRepository {
-	repoOnce.Do(func() {
-		RepoGormDatabaseRepository = &gormRepository{
-			defaultJoins: defaultJoins,
-			logger:       logger,
-			db:           db,
-		}
-	})
-	return RepoGormDatabaseRepository
+	return &gormRepository{
+		defaultJoins: defaultJoins,
+		logger:       logger,
+		db:           db,
+	}
 }
 
 var GormBankRepositorySet = wire.NewSet(wire.Struct(new(repositories2.GormBankRepository), "*"))

@@ -1,7 +1,10 @@
 package config
 
 import (
-	"os"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
+	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 type BasicDBConf struct {
@@ -12,45 +15,85 @@ type BasicDBConf struct {
 	Port     string
 }
 
-type PostgresDbConf struct {
-	SSLMode                string
-	Schema                 string
+type MYSQLConf struct {
+	Charset   string
+	ParseTime bool
+	Timezone  string
+}
+
+type PostgresConf struct {
+	Schema string
+}
+
+type DBDriver uint
+
+type DatabaseConfig struct {
+	ConnectionName       string
+	SkipCreateConnection bool
+	Driver               DBDriver
+	BasicDBConf
+	SSLMode string
+	PostgresConf
+	MYSQLConf
 	MaxOpenConn            int
 	MaxIdleConn            int
 	MaxIdleTimeConnSeconds int64
 	MaxLifeTimeConnSeconds int64
-	BasicDBConf
 }
 
-type MysqlDbConf struct {
-	BasicDBConf
-}
+var DBConfig Databases
 
-type IDBConfig interface {
-	GetPostgresConfig() PostgresDbConf
-}
-
-type DatabaseConfig struct {
-	PostgresConfig PostgresDbConf
-	MysqlDbConfig  MysqlDbConf
-}
-
-func MakeDatabaseConfig() DatabaseConfig {
-	basicDbConf := BasicDBConf{
-		Host:     os.Getenv("DB_HOST"),
-		Username: os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Name:     os.Getenv("DB_NAME"),
-		Port:     os.Getenv("DB_PORT"),
-	}
-	configPostgres := PostgresDbConf{
-		BasicDBConf: basicDbConf,
-		SSLMode:     os.Getenv("DB_SSL_MODE"),
-		Schema:      os.Getenv("DB_SCHEMA"),
+func init() {
+	if err := godotenv.Load(); err != nil {
+		logrus.Error(".env not loaded, using default environment variables ", err.Error())
 	}
 
-	return DatabaseConfig{
-		PostgresConfig: configPostgres,
-		MysqlDbConfig:  MysqlDbConf{},
+	config := make(Databases)
+	config = Databases{
+		"default": {
+			Driver:               constants.POSTGRES,
+			SkipCreateConnection: false,
+			BasicDBConf: BasicDBConf{
+				Host:     utils.GetEnv("DB_HOST"),
+				Username: utils.GetEnv("DB_USERNAME"),
+				Password: utils.GetEnv("DB_PASSWORD"),
+				Name:     utils.GetEnv("DB_NAME"),
+				Port:     utils.GetEnv("DB_PORT"),
+			},
+			SSLMode: "",
+			PostgresConf: PostgresConf{
+				Schema: utils.GetEnvWithDefaultValue("DB_SCHEMA", "public"),
+			},
+			MaxOpenConn:            0,
+			MaxIdleConn:            0,
+			MaxIdleTimeConnSeconds: 0,
+			MaxLifeTimeConnSeconds: 0,
+		},
+		"mysql": {
+			SkipCreateConnection: false,
+			Driver:               constants.MYSQL,
+			BasicDBConf: BasicDBConf{
+				Host:     utils.GetEnv("DB_HOST_2"),
+				Username: utils.GetEnv("DB_USERNAME_2"),
+				Password: utils.GetEnv("DB_PASSWORD_2"),
+				Name:     utils.GetEnv("DB_NAME_2"),
+				Port:     utils.GetEnv("DB_PORT_2"),
+			},
+			MYSQLConf: MYSQLConf{
+				Charset:   utils.GetEnvWithDefaultValue("DB_CHARSET_2", "utf8"),
+				ParseTime: true,
+				Timezone:  utils.GetEnvWithDefaultValue("DB_TIMEZONE_2", "Local"),
+			},
+			SSLMode:                "",
+			MaxOpenConn:            0,
+			MaxIdleConn:            0,
+			MaxIdleTimeConnSeconds: 0,
+			MaxLifeTimeConnSeconds: 0,
+		},
 	}
+	DBConfig = config
 }
+
+type Databases map[ConnectionDBName]DatabaseConfig
+
+type ConnectionDBName string
