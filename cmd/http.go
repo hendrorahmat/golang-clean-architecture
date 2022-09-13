@@ -14,7 +14,7 @@ var httpCommand = &cobra.Command{
 		application := bootstrap.Boot()
 		ctx := context.Background()
 		application.GetRepositoryCustomConnection("mysql").BankRepository.GetBankList(ctx, &repositories.BankRepositoryFilter{})
-		application.GetRepository().BankRepository.GetBankList(ctx, &repositories.BankRepositoryFilter{})
+		//application.GetRepository().BankRepository.GetBankList(ctx, &repositories.BankRepositoryFilter{})
 		//repo := databases.(db.Postgres.DB(), logger)
 		//repo.BankRepository.GetBankList(ctx, &repositories.BankRepositoryFilter{})
 		//repo.GetBankList(ctx, &repositories.BankRepositoryFilter{})
