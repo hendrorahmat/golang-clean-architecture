@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"github.com/hendrorahmat/golang-clean-architecture/src/domains/entities"
+	"time"
+)
 
 type Bank struct {
 	ID          uint `gorm:"primaryKey"`
@@ -8,4 +11,12 @@ type Bank struct {
 	DisplayName string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+func (b Bank) ToEntity() (*entities.Bank, error) {
+	entity, err := entities.MakeBankEntity(b.Name, b.CreatedAt, b.UpdatedAt)
+	if err != nil {
+		return &entities.Bank{}, err
+	}
+	return entity, nil
 }

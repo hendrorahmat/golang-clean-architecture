@@ -22,7 +22,7 @@ type Connections struct {
 	Connection
 }
 
-var ListConnections *Connections
+var connections *Connections
 var dbConnOnce sync.Once
 
 func MakeDatabase(databases config.Databases, log *logrus.Logger) *Connections {
@@ -48,12 +48,14 @@ func MakeDatabase(databases config.Databases, log *logrus.Logger) *Connections {
 			listConnections[string(name)] = dbConnection
 		}
 
-		ListConnections = &Connections{
+		listConnections[constants.ActiveConnectionDb] = listConnections[constants.DefaultConnectionDB]
+
+		connections = &Connections{
 			listConnections,
 		}
 	})
 
-	return ListConnections
+	return connections
 }
 func (c *Connections) GetConnection(connectionName string) *gorm.DB {
 	return c.Connection[connectionName].DB()

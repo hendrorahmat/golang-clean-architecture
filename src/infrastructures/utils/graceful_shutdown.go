@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-type operation func(ctx context.Context) error
+type GracefulOperation func(ctx context.Context) error
 
-func GracefulShutdown(ctx context.Context, log *logrus.Logger, timeout time.Duration, ops map[string]operation) <-chan struct{} {
+func GracefulShutdown(ctx context.Context, log *logrus.Logger, timeout time.Duration, ops map[string]GracefulOperation) <-chan struct{} {
 	wait := make(chan struct{})
 	go func() {
 		s := make(chan os.Signal, 1)

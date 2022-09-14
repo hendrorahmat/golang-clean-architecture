@@ -9,22 +9,14 @@ type IBankHandler interface {
 	Index(ctx *gin.Context)
 }
 
-type bankHandler struct {
+type BankHandler struct {
 	Usecase usecases.IBankUsecase
 }
 
-func (b bankHandler) Index(ctx *gin.Context) {
-	b.Usecase.GetListBank(ctx.Request.Context())
-	//ctx.Header("accept", "application/json")
-	ctx.JSON(200, gin.H{
-		"status":  "posted",
-		"message": "message",
-		"nick":    "nick",
-	})
-}
-
-func NewBankHandler(usecase usecases.IBankUsecase) IBankHandler {
-	return bankHandler{
-		Usecase: usecase,
+func (b *BankHandler) Index(ctx *gin.Context) {
+	listBank, err := b.Usecase.GetListBank(ctx.Request.Context())
+	if err != nil {
+		return
 	}
+	ctx.JSON(200, listBank)
 }

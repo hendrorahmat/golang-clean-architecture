@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
 	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/middleware"
 	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/routes/v1/simkah_app"
@@ -10,7 +9,7 @@ import (
 
 func NewRoute(
 	config *config.Config,
-	usecase usecases.UsecaseList,
+	handler *Handler,
 ) *gin.Engine {
 	router := gin.Default()
 
@@ -20,7 +19,7 @@ func NewRoute(
 	{
 		simkahApp := api.Group("/v1/simkah-app")
 		{
-			simkah_app.RouteSimkahAppV1(simkahApp, usecase)
+			simkah_app.RouteSimkahAppV1(simkahApp, handler.BankHandler)
 		}
 	}
 	return router

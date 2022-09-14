@@ -3,7 +3,7 @@ testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
-  bin = "./tmp/main"
+  bin = "./tmp/main http"
   cmd = "go build -o ./tmp/main ."
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
@@ -15,9 +15,11 @@ tmp_dir = "tmp"
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   kill_delay = "0s"
-  log = "build-errors.log"
+  log = "air.log"
   send_interrupt = false
   stop_on_error = true
+  args_bin = ["golang-clean-architecture", "http"]
+
 
 [color]
   app = ""

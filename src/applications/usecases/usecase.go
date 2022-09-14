@@ -1,5 +1,5 @@
 package usecases
 
-type UsecaseList struct {
+type Usecase struct {
 	BankUsecase IBankUsecase
 }

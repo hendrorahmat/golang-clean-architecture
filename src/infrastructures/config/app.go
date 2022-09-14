@@ -75,6 +75,11 @@ func Make() *Config {
 			Logger: logrus.New(),
 		}
 
+		if app.Key == "" {
+			logrus.Fatalf("Please generate random string and set to APP_KEY .env variable")
+			panic("Please generate random string and set to APP_KEY")
+		}
+
 		db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
 		redis := RedisConf{
 			Address:  os.Getenv("REDIS_ADDRESS"),

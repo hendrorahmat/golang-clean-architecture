@@ -50,7 +50,7 @@ func init() {
 
 	config := make(Databases)
 	config = Databases{
-		"default": {
+		constants.DefaultConnectionDB: {
 			Driver:               constants.POSTGRES,
 			SkipCreateConnection: false,
 			BasicDBConf: BasicDBConf{
