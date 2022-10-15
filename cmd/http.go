@@ -19,8 +19,7 @@ var httpCommand = &cobra.Command{
 		application := bootstrap.Boot()
 		ctx := context.Background()
 
-		router := rest.NewRoute(application.GetConfig(), application.GetHandler())
-		//application.GetRepositoryCustomConnection("mysql").BankRepository.GetBankList(ctx, &repositories.BankRepositoryFilter{})
+		router := rest.NewRoute(application)
 		srv := &http.Server{
 			Addr:    ":" + application.GetConfig().Http.Port,
 			Handler: router,

@@ -61,8 +61,8 @@ func NewLogInstance(logOptions ...LogOption) *logrus.Logger {
 	lc := &LogConfig{}
 	lc.LogFileName = Default
 
-	for _, opt := range logOptions {
-		opt(lc)
+	for _, option := range logOptions {
+		option(lc)
 	}
 
 	//if it is production will output warn and error level
@@ -80,9 +80,9 @@ func NewLogInstance(logOptions ...LogOption) *logrus.Logger {
 			PrettyPrint:     true,
 			CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 				s := strings.Split(f.Function, ".")
-				funcname := s[len(s)-1]
+				funcName := s[len(s)-1]
 				_, filename := path.Split(f.File)
-				return funcname, filename
+				return funcName, filename
 			},
 		})
 	} else {

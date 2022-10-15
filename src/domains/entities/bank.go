@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type IBankListDto interface {
 	Validate() error
@@ -29,4 +32,20 @@ func MakeBankEntity(
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}, nil
+}
+
+func (b *Bank) MarshalJSON() ([]byte, error) {
+	respon, err := json.Marshal(struct {
+		Name      string
+		CreatedAt string
+		UpdatedAt string
+	}{
+		Name:      b.Name,
+		CreatedAt: b.CreatedAt.String(),
+		UpdatedAt: b.UpdatedAt.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return respon, nil
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases"
-	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,10 +13,6 @@ type App struct {
 	databases *databases.Connections
 	config    *config.Config
 	logger    *logrus.Logger
-}
-
-func (a *App) GetHandler() *rest.Handler {
-	return rest.InjectHandler(a.GetActiveConnection().DB(), a.logger)
 }
 
 func (a *App) GetActiveConnection() databases.IDB {
@@ -71,7 +66,6 @@ type IApp interface {
 	GetUsecases() *usecases.Usecase
 	SetActiveConnectionDB(connectionName string)
 	GetActiveConnection() databases.IDB
-	GetHandler() *rest.Handler
 }
 
 func Boot() IApp {
