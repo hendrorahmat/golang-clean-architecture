@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+	github.com/google/gops v0.3.25
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.4.0
 	github.com/mattn/go-colorable v0.1.12
@@ -24,6 +25,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect
@@ -45,7 +47,7 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
-	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
+	golang.org/x/sys v0.0.0-20221013171732-95e765b1cc43 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect

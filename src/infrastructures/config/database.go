@@ -70,7 +70,7 @@ func init() {
 			MaxLifeTimeConnSeconds: 0,
 		},
 		"mysql": {
-			SkipCreateConnection: false,
+			SkipCreateConnection: true,
 			Driver:               constants.MYSQL,
 			BasicDBConf: BasicDBConf{
 				Host:     utils.GetEnv("DB_HOST_2"),

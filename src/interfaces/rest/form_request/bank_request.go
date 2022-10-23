@@ -7,14 +7,12 @@ import (
 )
 
 type BankRequest struct {
-	Page string `form:"page" json:"page"`
-	User string `form:"user" json:"user"`
+	Page int `form:"page" json:"page"`
 }
 
 func (b BankRequest) Validate(ctx *gin.Context) *errors.GeneralError {
 	request := NewRequestValidation()
 	request.AddParam("page", &b.Page, validation.Required, validation.Min(1))
-	request.AddParam("limit", nil, validation.Required, validation.Min(1))
 	request.SetCustomCode(errors.QueryParamDataInvalid)
 	return request.Validate(ctx)
 }

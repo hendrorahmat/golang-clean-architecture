@@ -34,7 +34,7 @@ func (rv *requestValidation) AddParam(name string, value any, rules ...validatio
 
 func (rv *requestValidation) Validate(ctx *gin.Context) *errors.GeneralError {
 	var customErr *errors.GeneralError
-	
+
 	if rv.Code == nil {
 		customErr = errors.NewError(errors.DataPayloadInvalid)
 	} else {

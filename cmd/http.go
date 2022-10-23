@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/gops/agent"
 	"github.com/hendrorahmat/golang-clean-architecture/src/bootstrap"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
 	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest"
@@ -30,6 +31,11 @@ var httpCommand = &cobra.Command{
 				application.GetLogger().Warnf("listen %s\n", err)
 			}
 		}()
+
+		if err := agent.Listen(agent.Options{}); err != nil {
+			application.GetLogger().Info("Gops Error")
+			application.GetLogger().Fatal(err)
+		}
 		application.GetLogger().Info("Server listen ", application.GetConfig().Http.Port)
 		timeout := time.Duration(application.GetConfig().App.GracefulShutdownTimeout) * time.Second
 
