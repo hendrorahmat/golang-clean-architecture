@@ -14,7 +14,7 @@ type Meta[T any] struct {
 }
 
 type response[TData, TMeta any] struct {
-	Data TData        `json:"data,omitempty"`
+	Data TData        `json:"data"`
 	Meta *Meta[TMeta] `json:"meta,omitempty"`
 }
 
