@@ -13,7 +13,7 @@ type GormBankRepository struct {
 }
 
 func (g *GormBankRepository) GetBankList(ctx context.Context, filter *repositories.BankRepositoryFilter) ([]entities.Bank, error) {
-	var bankEntities []entities.Bank
+	var bankEntities = make([]entities.Bank, 0)
 
 	var bankList []models.Bank
 

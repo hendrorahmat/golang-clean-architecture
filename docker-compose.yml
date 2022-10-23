@@ -1,11 +1,41 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  api:
-    image: clean-architecture
+  app:
     build:
+      dockerfile: docker/api.Dockerfile
       context: .
-      dockerfile: api.Dockerfile
-    env_file: .env
+      target: dev
+    volumes:
+      - .:/opt/app/api
+    env_file: ./.env
     ports:
-      - 9093:9093
+      - "9093:${HTTP_PORT}"
+    links:
+      - db
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - ./docker/db/postgres/data:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME} # from .env
+      - POSTGRES_PASSWORD=${DB_PASSWORD} # from .env
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+  migrate: &basemigrate
+    profiles: [ "tools" ]
+    image: migrate/migrate
+    entrypoint: "migrate -database postgresql://${DB_USERNAME}@db/${DB_NAME}?sslmode=disable -path /tmp/migrations"
+    command: up
+    links:
+      - db
+    volumes:
+      - ./migrations:/tmp/migrations
+
+  create-migration:
+    <<: *basemigrate
+    entrypoint: migrate create -dir /tmp/migrations -ext sql
+    command: ""

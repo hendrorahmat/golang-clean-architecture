@@ -48,3 +48,6 @@ _test
 
 # wire generation
 wire_gen.go
+
+migrations/
+docker/db
