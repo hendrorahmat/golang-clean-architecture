@@ -7,30 +7,16 @@ CMD ["air", "-c", ".air.http.toml"]
 
 FROM base as built
 
-WORKDIR /go/app/api
+WORKDIR /app/api
 COPY . .
-
 ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 
 RUN go get -d -v ./...
-RUN go build -o /tmp/api-server ./*.go
+RUN go build -o api-server ./*.go
 
 FROM busybox
-
-COPY --from=built /tmp/api-server /usr/bin/api-server
-CMD ["api-server", "start"]
-
-#COPY ../go.mod ./
-#COPY ../go.sum ./
-#
-#RUN go mod download
-#
-#COPY .. .
-#
-#RUN go build -o ./clean-architecture
-#
-#WORKDIR /app
-#
-#EXPOSE 8080
-#
-#ENTRYPOINT ["./clean-architecture", "http"]
+WORKDIR /app
+EXPOSE ${HTTP_PORT}
+COPY --from=built /app/api/ /app/
+CMD ["./api-server", "http"]

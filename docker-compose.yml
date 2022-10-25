@@ -10,7 +10,7 @@ services:
       - .:/opt/app/api
     env_file: ./.env
     ports:
-      - "9093:${HTTP_PORT}"
+      - "${HTTP_PORT}:${HTTP_PORT}"
     links:
       - db
   db:
