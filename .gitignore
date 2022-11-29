@@ -45,9 +45,3 @@ _test
 .env.test.local
 .env.production.local
 .env
-
-# wire generation
-wire_gen.go
-
-migrations/
-docker/db

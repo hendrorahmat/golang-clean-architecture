@@ -1,10 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
+	"os"
 )
 
 type BasicDBConf struct {
@@ -43,11 +43,7 @@ type DatabaseConfig struct {
 
 var DBConfig Databases
 
-func init() {
-	if err := godotenv.Load(); err != nil {
-		logrus.Error(".env not loaded, using default environment variables ", err.Error())
-	}
-
+func MakeDatabaseConfig() {
 	config := make(Databases)
 	config = Databases{
 		constants.DefaultConnectionDB: {
@@ -62,7 +58,7 @@ func init() {
 			},
 			SSLMode: "",
 			PostgresConf: PostgresConf{
-				Schema: utils.GetEnvWithDefaultValue("DB_SCHEMA", "public"),
+				Schema: os.Getenv("DB_SCHEMA"),
 			},
 			MaxOpenConn:            0,
 			MaxIdleConn:            0,
@@ -91,6 +87,7 @@ func init() {
 			MaxLifeTimeConnSeconds: 0,
 		},
 	}
+	fmt.Println(config)
 	DBConfig = config
 }
 

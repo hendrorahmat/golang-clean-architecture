@@ -1,11 +1,10 @@
 package bootstrap
 
 import (
-	"github.com/hendrorahmat/golang-clean-architecture/src/applications"
-	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,10 +20,6 @@ func (a *App) GetActiveConnection() databases.IDB {
 
 func (a *App) SetActiveConnectionDB(connectionName string) {
 	a.databases.Connection[constants.ActiveConnectionDb] = a.databases.Connection[connectionName]
-}
-
-func (a *App) GetUsecases() *usecases.Usecase {
-	return applications.InjectUsecase(a.GetActiveConnection().DB(), a.logger)
 }
 
 func (a *App) GetConnections() *databases.Connections {
@@ -63,14 +58,30 @@ type IApp interface {
 	GetLogger() *logrus.Logger
 	GetConnections() *databases.Connections
 	GetConnection(name string) databases.IDB
-	GetUsecases() *usecases.Usecase
 	SetActiveConnectionDB(connectionName string)
 	GetActiveConnection() databases.IDB
 }
 
 func Boot() IApp {
+	utils.LoadEnv()
 	conf := config.Make()
-	logger := config.NewLogger(conf)
+	m := make(map[string]interface{})
+	m["env"] = conf.App.Environment
+	m["service"] = utils.ToKebabCase(conf.App.Name)
+
+	isProduction := false
+
+	if conf.App.Environment == constants.PRODUCTION {
+		isProduction = true
+	}
+
+	logger := utils.NewLogInstance(
+		utils.LogName(conf.Log.Name),
+		utils.IsProduction(isProduction),
+		utils.LogAdditionalFields(m),
+		utils.LogEnvironment(utils.GetEnvWithDefaultValue("APP_ENV", "local")),
+	)
+
 	db := databases.MakeDatabase(conf.Database, logger)
 	app := &App{
 		config:    conf,

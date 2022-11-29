@@ -19,8 +19,9 @@ var httpCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		application := bootstrap.Boot()
 		ctx := context.Background()
+		controllers := rest.InjectHandler(application.GetActiveConnection().DB(), application.GetLogger())
 
-		router := rest.NewRoute(application)
+		router := rest.NewRoute(controllers, application.GetConfig())
 		srv := &http.Server{
 			Addr:    ":" + application.GetConfig().Http.Port,
 			Handler: router,

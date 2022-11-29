@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+	github.com/go-testfixtures/testfixtures/v3 v3.8.1
 	github.com/google/gops v0.3.25
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.4.0
@@ -52,4 +53,5 @@ require (
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

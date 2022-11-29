@@ -106,6 +106,8 @@ func Make() *Config {
 			panic(constants.DbDriverNotFound)
 		}
 
+		MakeDatabaseConfig()
+
 		appConfig = &Config{
 			App:      app,
 			MongoDb:  mongodb,
