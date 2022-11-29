@@ -45,3 +45,5 @@ _test
 .env.test.local
 .env.production.local
 .env
+
+migrations
