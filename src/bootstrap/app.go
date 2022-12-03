@@ -6,6 +6,7 @@ import (
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases"
 	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
 	"github.com/sirupsen/logrus"
+	"runtime"
 )
 
 type App struct {
@@ -67,6 +68,7 @@ func Boot() IApp {
 	conf := config.Make()
 	m := make(map[string]interface{})
 	m["env"] = conf.App.Environment
+	m["total-goroutine"] = runtime.NumGoroutine()
 	m["service"] = utils.ToKebabCase(conf.App.Name)
 
 	isProduction := false
