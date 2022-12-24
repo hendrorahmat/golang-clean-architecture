@@ -46,7 +46,7 @@ func ProvideDatabaseRepository(db *gorm.DB, logger *logrus.Logger, defaultJoins 
 	}
 }
 
-//var GormBankRepositoryPostgresSet = wire.NewSet(new(*repositories2.GormBankRepository))
+// var GormBankRepositoryPostgresSet = wire.NewSet(new(*repositories2.GormBankRepository))
 var GormBankRepositorySet = wire.NewSet(wire.Struct(new(repositories_postgres.GormBankRepository), "*"))
 
 var (
