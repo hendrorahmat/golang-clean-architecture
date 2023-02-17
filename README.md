@@ -115,7 +115,10 @@ root
     > 
     > It's worth noting that there are some exceptions, for example, if the use case is a simple CRUD operation, it can be fine to access the entities directly, but in general, it's a good practice to have services as a layer between the use cases and entities.  
      
-    
+- The difference between service and usecase
+  - > **Use cases** provide a high-level description of a specific business capability that a user wants to achieve. They outline the steps that the system needs to take to complete the task and define the problem that the system is trying to solve.
+  - > **Services**, on the other hand, are responsible for implementing the steps outlined in the use case and coordinating the activities between domain entities, aggregates, and infrastructure components. They can make use of domain entities and aggregates, perform specific tasks, and access infrastructure components as needed to complete the use case.
+  - > So, in summary, use cases provide a high-level definition of a business capability, while services implement the steps needed to complete the use case.
 - The cmd/root.go file is the entry point of the application.
 
 This folder structure allows for a clear separation of concerns and makes it easy to understand the different responsibilities of each part of the codebase.
