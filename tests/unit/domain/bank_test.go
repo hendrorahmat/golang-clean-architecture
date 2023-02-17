@@ -1,4 +1,4 @@
-package domains_test
+package domain_test
 
 import (
 	"fmt"

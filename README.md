@@ -4,51 +4,83 @@
 
 This project follows the principles of Domain-Driven Design (DDD) and uses the following folder structure to organize the codebase:
 ````
-- domain
-    - entities
-            - entity1.go
-            - entity2.go
-            - ...
-    - value_objects
-        - value_object1.go
-        - value_object2.go
-        - ...
-- application
-    - usecase
-        - usecase1.go
-        - usecase2.go
-        - ...
-    - services
-        - service1.go
-        - service2.go
-        - ...
-- infrastructure
-    - persistence
-        - repository
-            - repository1.go
-            - repository2.go
-            - ...
-        - db
-            - db.go
-            - migration
-                - migration1.go
-                - migration2.go
-                - ...
-    - messaging
-        - kafka
-            - consumer.go
-            - producer.go
-    - external
-        - http
-            - http_client.go
-            - http_server.go
-- cmd 
-    - main.go
+root
+|-- cmd
+|	|-- http.go
+|	|-- kafka.go
+|	|-- root.go
+|-- docker
+|	|-- db
+|	|-- api.Dockerfile
+|-- migrations
+|	|-- create_table_xyz.up.go
+|	|-- create_table_xyz.down.go
+|-- src
+	|	|-- applications
+	|	|	|-- commands
+	|	|	|-- dto
+	|	|	|-- listeners
+	|	|	|-- services
+	|	|	|-- usecases
+	|	|	|-- provider.go
+	|	|	|-- wire_gen.go
+	|   |-- bootstrap
+	|   |	|-- app.go
+	|   |-- domain
+	|   |	|-- entities
+	|   |	|	|-- entity.go
+	|   |	|-- errors
+	|	|   |	| internalServerError.go.
+	|	|   |	| badRequest.go.
+	|   |	|-- events
+	|	|   |	| orderCreated.go.
+	|	|   |	| userRegistered.go.
+	|   |	|-- repositories
+	|   |	|	|-- userRepository.go
+	|   |	|	|-- orderRepository.go
+	|   |	|-- valueObjects
+	|   |	|	|-- email.go
+	|   |	|	|-- mooney.go
+	|   |	|	|-- timestamps.go
+	|-- factories
+	|	|-- commands
+	|	|-- entities
+	|	|-- services
+	|-- infrastructure
+	|   |-- config
+	|   |-- constants
+	|   |-- errors
+	|   |-- external
+	|   |-- messaging
+	|   |-- persistence
+	|   |   |-- database.go
+	|   |-- messaging
+	|   |   |-- message_queue.go
+	|   |-- utils
+	|   |   |-- error.go
+	|-- interfaces
+	|	|-- rest
+	|	|-- grpc
+	|	|-- kafka
+	|	|-- graphql
+	|-- main.go
+|-- storage
+|	|-- logs
+|--	tests
+|	|-- integration
+|	|	|-- database
+|	|	|-- interfaces
+|	|	|-- controller
+|	|-- mocks
+|	|-- unit
+|	|	|--applications
+|	|	|--domain
+
 ````
 
 - The domain folder contains all the business logic of the application. It is divided into two subfolders: model and services.
 
-- The model folder contains all the entities and value objects that make up the application's domain model.
+- The domain folder contains all the entities, value objects, events, repositories, errors that make up the application's domain model.
 - Entities are objects that have an identity and encapsulate the business rules of the application.
     - > In Domain-Driven Design (DDD), entities can have business logic, as they represent business concepts or objects and it makes sense that they have their own behavior and logic. Entities are responsible for maintaining the state of the domain and encapsulating the data and methods that are specific to that business concept.
     - > Entities can have methods that implement business rules, validation, or other business-specific logic. For example, an Order entity may have methods for calculating the total cost of the order, checking for discounts, or applying taxes.

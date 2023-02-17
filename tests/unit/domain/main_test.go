@@ -1,4 +1,4 @@
-package domains_test
+package domain_test
 
 import (
 	"github.com/go-testfixtures/testfixtures/v3"
