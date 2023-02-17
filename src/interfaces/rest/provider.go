@@ -5,23 +5,36 @@ package rest
 
 import (
 	"github.com/google/wire"
-	"github.com/hendrorahmat/golang-clean-architecture/src/applications"
-	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/routes/v1/simkah_app/handler"
+	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
+	handler2 "github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/routes/oauth2/handler"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
-var BankHandlerSet = wire.NewSet(wire.Struct(new(handler.BankHandler), "*"))
+func ProvideOauthClientHandler(u *usecases.Usecase, logger *logrus.Logger) *handler2.OauthClientHandler {
+	return &handler2.OauthClientHandler{
+		Usecase: u.OauthUsecase,
+		Logger:  logger,
+	}
+}
+
+func ProvideOauthTokenHandler(u *usecases.Usecase, logger *logrus.Logger) *handler2.OauthTokenHandler {
+	return &handler2.OauthTokenHandler{
+		Usecase: u.OauthUsecase,
+		Logger:  logger,
+	}
+}
 
 var (
 	ProviderHandlerSet wire.ProviderSet = wire.NewSet(
-		BankHandlerSet,
-		applications.ProviderUsecaseSet,
+		ProvideOauthClientHandler,
+		ProvideOauthTokenHandler,
 		wire.Struct(new(Handler), "*"),
-		wire.Bind(new(handler.IBankHandler), new(*handler.BankHandler)),
+		wire.Struct(new(handler2.Oauth2Handler), "*"),
+		wire.Bind(new(handler2.IOauthClientHandler), new(*handler2.OauthClientHandler)),
+		wire.Bind(new(handler2.IOauthTokenHandler), new(*handler2.OauthTokenHandler)),
 	)
 )
 
-func InjectHandler(db *gorm.DB, logger *logrus.Logger, defaultJoins ...string) *Handler {
+func InjectHandler(usecases *usecases.Usecase, logger *logrus.Logger, defaultJoins ...string) *Handler {
 	panic(wire.Build(ProviderHandlerSet))
 }

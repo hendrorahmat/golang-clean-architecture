@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/errors"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/constants"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/errors"
 )
 
 type paramValidation struct {
@@ -15,7 +16,7 @@ type paramValidation struct {
 
 type requestValidation struct {
 	Params     []paramValidation
-	Code       *errors.ErrorCode
+	Code       *uint
 	StatusCode int
 }
 
@@ -32,15 +33,16 @@ func (rv *requestValidation) AddParam(name string, value any, rules ...validatio
 	rv.Params = append(rv.Params, param)
 }
 
-func (rv *requestValidation) Validate(ctx *gin.Context) *errors.GeneralError {
-	var customErr *errors.GeneralError
+func (rv *requestValidation) Validate(ctx *gin.Context) *errors.ValidationError {
+	var customErr *errors.ValidationError
 
 	if rv.Code == nil {
-		customErr = errors.NewError(errors.DataPayloadInvalid)
+		customErr = errors.NewError(constants.DataPayloadInvalidCode)
 	} else {
 		customErr = errors.NewError(*rv.Code)
 	}
 
+	customErr.ValidationErrors = map[string]errors.Errorlists{}
 	for _, param := range rv.Params {
 		errorLists := rv.ValidateParam(&param.value, param.rules...)
 		if len(errorLists) > 0 {
@@ -52,11 +54,6 @@ func (rv *requestValidation) Validate(ctx *gin.Context) *errors.GeneralError {
 		return nil
 	}
 
-	if rv.StatusCode == 0 {
-		customErr.SetStatusCode(422)
-	} else {
-		customErr.SetStatusCode(rv.StatusCode)
-	}
 	ctx.Header("Content-Type", "application/problem+json")
 	return customErr
 }
@@ -81,7 +78,7 @@ func (rv *requestValidation) ValidateParam(value any, rules ...validation.Rule) 
 	return errorLists
 }
 
-func (rv *requestValidation) SetCustomCode(code errors.ErrorCode) {
+func (rv *requestValidation) SetCustomCode(code uint) {
 	rv.Code = &code
 }
 

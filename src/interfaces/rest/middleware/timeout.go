@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/config"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/config"
 	"net/http"
 	"time"
 )

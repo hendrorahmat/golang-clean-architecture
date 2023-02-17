@@ -1,0 +1,18 @@
+package constants
+
+const DbDriverNotFound = "DBGorm Driver Not Found!"
+const ConnectionNotEstablished = "Connection not Established!"
+const ClientIdAndSecretNotFound = "Client id and secret not found."
+const RecordNotFound = "Record Not Found."
+const RecordFieldsNotFound = "{fields} not found."
+const DatabaseCommandError = "Database Command Error."
+const DatabaseQueryError = "Database Query Error."
+const DataInvalid = "Invalid Data."
+const InternalServerError = "Internal Server Error."
+const QueryParamInvalid = "Invalid Query param."
+const HeaderInvalid = "Invalid Header."
+const ErrorEventAlreadyAdded = "Event Duplicate."
+const ErrorEventNameAlreadyAdded = "Event {name} already added."
+const ErrorCannotConvertModelToEntity = "Cannot convert model {model} to entity {entity}"
+const ErrorFieldNotFound = "Field {fields} should not be empty."
+const ErrorCommandTypeNotFound = "Command type not found."

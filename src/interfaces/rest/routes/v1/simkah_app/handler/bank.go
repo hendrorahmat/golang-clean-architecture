@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
-	"github.com/hendrorahmat/golang-clean-architecture/src/domains/entities"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/errors"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
+	"github.com/hendrorahmat/golang-clean-architecture/src/domain/entities"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/errors"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/utils"
 	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/form_request"
 	"github.com/sirupsen/logrus"
 )

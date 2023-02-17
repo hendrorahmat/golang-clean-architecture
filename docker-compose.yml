@@ -16,6 +16,7 @@ services:
   db:
     image: postgres:15-alpine
     volumes:
+      - ./docker/db/initdb/postgres-init.sh:/docker-entrypoint-initdb.d/postgres-init.sh
       - ./docker/db/postgres/data:/var/lib/postgresql/data
     ports:
       - "15432:5432"
@@ -24,12 +25,44 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD} # from .env
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_SCHEMA=${DB_SCHEMA}
+      - APP_ENV=${APP_ENV}
 
   migrate: &basemigrate
     profiles: [ "tools" ]
     image: migrate/migrate
-    entrypoint: "migrate -database postgresql://${DB_USERNAME}@db/${DB_NAME}?sslmode=disable -path /tmp/migrations"
+    entrypoint: "migrate -database 'postgres://${DB_USERNAME}@db/${DB_NAME}?sslmode=disable&search_path=${DB_SCHEMA}' -path /tmp/migrations"
     command: up
+    links:
+      - db
+    volumes:
+      - ./migrations:/tmp/migrations
+
+  migrate-db-test:
+    profiles: [ "tools" ]
+    image: migrate/migrate
+    entrypoint: "migrate -database 'postgres://${DB_USERNAME}@db/${DB_NAME}_test?sslmode=disable&search_path=${DB_SCHEMA}_test' -path /tmp/migrations"
+    command: up
+    links:
+      - db
+    volumes:
+      - ./migrations:/tmp/migrations
+
+  migrate-rollback: &basemigrate
+    profiles: [ "tools" ]
+    image: migrate/migrate
+    entrypoint: "migrate -database 'postgres://${DB_USERNAME}@db/${DB_NAME}?sslmode=disable&search_path=${DB_SCHEMA}' -path /tmp/migrations"
+    command: down
+    links:
+      - db
+    volumes:
+      - ./migrations:/tmp/migrations
+
+  migrate-rollback-db-test:
+    profiles: [ "tools" ]
+    image: migrate/migrate
+    entrypoint: "migrate -database 'postgres://${DB_USERNAME}@db/${DB_NAME}_test?sslmode=disable&search_path=${DB_SCHEMA}_test' -path /tmp/migrations"
+    command: down
     links:
       - db
     volumes:

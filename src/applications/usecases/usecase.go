@@ -1,5 +1,5 @@
 package usecases
 
 type Usecase struct {
-	BankUsecase IBankUsecase
+	OauthUsecase IOauthUsecase
 }

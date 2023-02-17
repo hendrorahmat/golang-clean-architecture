@@ -6,22 +6,28 @@ package applications
 import (
 	"github.com/google/wire"
 	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/persistance/database"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
-var BankUsecaseSet = wire.NewSet(wire.Struct(new(usecases.BankUsecase), "*"))
+//var OauthUsecaseSet = wire.NewSet(wire.Struct(new(usecases.OauthUsecase), "*"))
+
+func ProvideOauthUsecase(repository *database.Repository, logger *logrus.Logger) *usecases.OauthUsecase {
+	return &usecases.OauthUsecase{
+		OauthClientRepository:      repository.OauthClientRepository,
+		OauthAccessTokenRepository: repository.OauthAccessTokenRepository,
+		Logger:                     logger,
+	}
+}
 
 var (
 	ProviderUsecaseSet wire.ProviderSet = wire.NewSet(
-		databases.ProviderRepositorySet,
-		BankUsecaseSet,
+		ProvideOauthUsecase,
 		wire.Struct(new(usecases.Usecase), "*"),
-		wire.Bind(new(usecases.IBankUsecase), new(*usecases.BankUsecase)),
+		wire.Bind(new(usecases.IOauthUsecase), new(*usecases.OauthUsecase)),
 	)
 )
 
-func InjectUsecase(db *gorm.DB, logger *logrus.Logger, defaultJoins ...string) *usecases.Usecase {
+func InjectUsecase(repository *database.Repository, logger *logrus.Logger, defaultJoins ...string) *usecases.Usecase {
 	panic(wire.Build(ProviderUsecaseSet))
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/hendrorahmat/golang-clean-architecture/src/bootstrap"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/constants"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/constants"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/utils"
 	"os"
 	"testing"
 )
@@ -22,6 +22,7 @@ func FixturesLoad(m *testing.M) {
 
 	var err error
 	fixtures, err = testfixtures.New(
+		testfixtures.Template(),
 		testfixtures.Database(application.GetActiveConnection().SqlDB()), // You database connection
 		testfixtures.Dialect(dialect),                                    // Available: "postgresql", "timescaledb", "mysql", "mariadb", "sqlite" and "sqlserver"
 		testfixtures.Directory(rootPath+"/testdata/fixtures"),            // The directory containing the YAML files

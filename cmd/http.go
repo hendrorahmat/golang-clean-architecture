@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/gops/agent"
+	"github.com/hendrorahmat/golang-clean-architecture/src/applications"
 	"github.com/hendrorahmat/golang-clean-architecture/src/bootstrap"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/utils"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/persistance/database"
+	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructure/utils"
 	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest"
 	"github.com/spf13/cobra"
 	"net/http"
@@ -17,11 +19,14 @@ var httpCommand = &cobra.Command{
 	Use:   "http",
 	Short: "Run HTTP Api",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		application := bootstrap.Boot()
 		ctx := context.Background()
-		controllers := rest.InjectHandler(application.GetActiveConnection().DB(), application.GetLogger())
+		application := bootstrap.Boot()
 
-		router := rest.NewRoute(controllers, application.GetConfig())
+		repositories := database.InjectRepository(application.GetActiveConnection().DB(), application.GetLogger())
+		usecases := applications.InjectUsecase(repositories, application.GetLogger())
+		controllers := rest.InjectHandler(usecases, application.GetLogger())
+
+		router := rest.NewRoute(ctx, controllers, application.GetConfig())
 		srv := &http.Server{
 			Addr:    ":" + application.GetConfig().Http.Port,
 			Handler: router,

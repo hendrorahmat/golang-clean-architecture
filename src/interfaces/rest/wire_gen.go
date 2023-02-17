@@ -8,41 +8,45 @@ package rest
 
 import (
 	"github.com/google/wire"
-	"github.com/hendrorahmat/golang-clean-architecture/src/applications"
 	"github.com/hendrorahmat/golang-clean-architecture/src/applications/usecases"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases"
-	"github.com/hendrorahmat/golang-clean-architecture/src/infrastructures/databases/postgres/repositories"
-	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/routes/v1/simkah_app/handler"
+	"github.com/hendrorahmat/golang-clean-architecture/src/interfaces/rest/routes/oauth2/handler"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 // Injectors from provider.go:
 
-func InjectHandler(db *gorm.DB, logger *logrus.Logger, defaultJoins ...string) *Handler {
-	gormRepository := databases.ProvideDatabaseRepository(db, logger, defaultJoins...)
-	gormBankRepository := &repositories_postgres.GormBankRepository{
-		TransactionRepository: gormRepository,
+func InjectHandler(usecases2 *usecases.Usecase, logger *logrus.Logger, defaultJoins ...string) *Handler {
+	oauthClientHandler := ProvideOauthClientHandler(usecases2, logger)
+	oauthTokenHandler := ProvideOauthTokenHandler(usecases2, logger)
+	oauth2Handler := oauth2_handler.Oauth2Handler{
+		OauthClientHandler: oauthClientHandler,
+		OauthTokenHandler:  oauthTokenHandler,
 	}
-	bankUsecase := &usecases.BankUsecase{
-		Repository: gormBankRepository,
+	handler := &Handler{
+		Oauth2Handler: oauth2Handler,
 	}
-	bankHandler := &handler.BankHandler{
-		Usecase: bankUsecase,
-		Logger:  logger,
-	}
-	restHandler := &Handler{
-		BankHandler: bankHandler,
-	}
-	return restHandler
+	return handler
 }
 
 // provider.go:
 
-var BankHandlerSet = wire.NewSet(wire.Struct(new(handler.BankHandler), "*"))
+func ProvideOauthClientHandler(u *usecases.Usecase, logger *logrus.Logger) *oauth2_handler.OauthClientHandler {
+	return &oauth2_handler.OauthClientHandler{
+		Usecase: u.OauthUsecase,
+		Logger:  logger,
+	}
+}
+
+func ProvideOauthTokenHandler(u *usecases.Usecase, logger *logrus.Logger) *oauth2_handler.OauthTokenHandler {
+	return &oauth2_handler.OauthTokenHandler{
+		Usecase: u.OauthUsecase,
+		Logger:  logger,
+	}
+}
 
 var (
 	ProviderHandlerSet wire.ProviderSet = wire.NewSet(
-		BankHandlerSet, applications.ProviderUsecaseSet, wire.Struct(new(Handler), "*"), wire.Bind(new(handler.IBankHandler), new(*handler.BankHandler)),
+		ProvideOauthClientHandler,
+		ProvideOauthTokenHandler, wire.Struct(new(Handler), "*"), wire.Struct(new(oauth2_handler.Oauth2Handler), "*"), wire.Bind(new(oauth2_handler.IOauthClientHandler), new(*oauth2_handler.OauthClientHandler)), wire.Bind(new(oauth2_handler.IOauthTokenHandler), new(*oauth2_handler.OauthTokenHandler)),
 	)
 )
